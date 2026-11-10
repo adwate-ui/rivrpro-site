@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Photo from '../components/Photo.astro';
+import { flagship } from '../content/flagship';
+import { photo } from '../content/media';
+import { accent } from '../lib/accent';
+---
+<BaseLayout title="RIVR Gurugram" description={flagship.description} og="flagship">
+  <section class="hero">
+    <div class="container stack" style="--gap: 28px">
+      <p class="eyebrow">The flagship</p>
+      <h1 set:html={accent(flagship.title)} />
+      <p class="lead">{flagship.intro}</p>
+    </div>
+  </section>
+  {flagship.chapters.map((chapter, index) => (
+    <section class="section">
+      <div class:list={['container', 'chapter', { flip: index % 2 === 1 }]} data-reveal>
+        <Photo src={photo(chapter.photo)} alt={chapter.alt} ratio="3 / 2" sizes="(min-width: 960px) 640px, 100vw" />
+        <div class="stack" style="--gap: 16px">
+          <p class="eyebrow">{String(index + 1).padStart(2, '0')} / {chapter.title}</p>
+          <h2>{chapter.title}</h2>
+          <p class="lead">{chapter.text}</p>
+        </div>
+      </div>
+    </section>
+  ))}
+  <section class="section">
+    <div class="container stack" style="--gap: 24px">
+      <h2>Bring this to your <em>city</em>.</h2>
+      <div><a class="btn btn-primary" href="/partner/">Partner with RIVR</a></div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .hero { padding-block: clamp(48px, 8vw, 120px); }
+  .chapter { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 960px) {
+    .chapter { grid-template-columns: 1.3fr 1fr; }
+    .flip > :first-child { order: 2; }
+  }
+</style>
