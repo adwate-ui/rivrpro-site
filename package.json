@@ -1,0 +1,45 @@
+{
+  "name": "rivrpro-site",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "check": "astro check && tsc -p worker",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "independence": "node scripts/check-independence.mjs",
+    "lhci": "lhci autorun",
+    "preview": "astro build && wrangler dev --port 8787",
+    "cf-types": "wrangler types worker/worker-configuration.d.ts",
+    "launch-check": "node scripts/check-launch.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adwate-ui/rivrpro-site.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adwate-ui/rivrpro-site/issues"
+  },
+  "homepage": "https://github.com/adwate-ui/rivrpro-site#readme",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "packageManager": "pnpm@12.14.0",
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.6",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/bodoni-moda": "^5.3.0",
+    "@fontsource-variable/instrument-sans": "^5.3.0",
+    "astro": "^7.4.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@axe-core/playwright": "^4.14.0",
+    "@lhci/cli": "^0.16.0",
+    "@playwright/test": "^1.65.0",
+    "typescript": "6.0.3",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.158.0"
+  }
+}

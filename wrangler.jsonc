@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rivrpro-site",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "force-trailing-slash",
+    "run_worker_first": ["/api/*"]
+  },
+  "send_email": [{ "name": "EMAIL" }],
+  // Public values only: the repo is public. TURNSTILE_SECRET and ENQUIRY_TO are Worker secrets.
+  "vars": { "ENQUIRY_FROM": "enquiries@rivrpro.com" },
+  "observability": { "enabled": true },
+  "workers_dev": true,
+  "preview_urls": true
+}
