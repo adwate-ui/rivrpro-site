@@ -11,7 +11,9 @@ test('a partner enquiry goes through to /thanks/', async ({ page }) => {
   // Turnstile's always-pass test key fills its hidden field by itself.
   await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: 20_000 });
   await page.getByRole('button', { name: 'Send', exact: true }).click();
-  await expect(page).toHaveURL(/\/thanks\/$/);
+  // The send makes a real call to Cloudflare's siteverify; under a parallel run it can take longer than the 5 s default
+  // (seen: still "Sending…" at 5 s, then through).
+  await expect(page).toHaveURL(/\/thanks\/$/, { timeout: 20_000 });
 });
 
 test('the form asks for an offer before posting', async ({ page }) => {
