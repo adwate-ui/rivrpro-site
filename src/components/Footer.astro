@@ -1,0 +1,27 @@
+---
+import Wordmark from './Wordmark.astro';
+import { legalLinks, site } from '../content/site';
+const year = new Date().getFullYear();
+---
+<footer class="footer">
+  <div class="container grid">
+    <div class="stack" style="--gap: 16px">
+      <Wordmark pro />
+      <p class="muted">18+ only. RIVR clubs are private and members-only. Please play responsibly.</p>
+    </div>
+    <nav aria-label="Legal" class="links">
+      {legalLinks.map((link) => <a href={link.href}>{link.label}</a>)}
+      <a href="/partner/">Partner with RIVR</a>
+    </nav>
+    <p class="muted small">© {year} {site.entity || 'RIVR'}{site.entityIds && ` · ${site.entityIds}`}</p>
+  </div>
+</footer>
+<style>
+  .footer { padding-block: 64px 48px; border-top: 1px solid var(--hairline); background: var(--green-deep); }
+  .grid { display: grid; gap: 32px; }
+  .links { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+  .links a { color: var(--text-muted); text-decoration: none; }
+  .links a:hover { color: var(--cream); }
+  .small { font-size: 0.875rem; }
+  @media (min-width: 960px) { .grid { grid-template-columns: 2fr 1fr; } .small { grid-column: 1 / -1; } }
+</style>
