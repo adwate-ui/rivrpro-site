@@ -1,0 +1,13 @@
+---
+interface Props { id?: string; number?: string; eyebrow: string; tone?: 'plain' | 'deep' }
+const { id, number, eyebrow, tone = 'plain' } = Astro.props;
+---
+<section class:list={['section', tone]} id={id}>
+  <div class="container stack" style="--gap: 40px" data-reveal>
+    <p class="eyebrow">{number ? `${number} / ${eyebrow}` : eyebrow}</p>
+    <slot />
+  </div>
+</section>
+<style>
+  .deep { background: var(--green-deep); }
+</style>

@@ -1,0 +1,20 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+interface Props { src: ImageMetadata | undefined; alt: string; caption?: string; ratio?: string; sizes?: string; eager?: boolean }
+const { src, alt, caption, ratio = '4 / 3', sizes = '(min-width: 1200px) 600px, 100vw', eager = false } = Astro.props;
+---
+<figure class="photo" style={`--ratio: ${ratio}`}>
+  {src
+    ? <Picture src={src} alt={alt} formats={['avif', 'webp']} widths={[480, 800, 1200, 1600]} sizes={sizes}
+        loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} />
+    : <div class="pending" role="img" aria-label={alt}><span>Photo to come</span></div>}
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+<style>
+  .photo { margin: 0; display: grid; gap: 12px; }
+  .photo :global(img), .pending { width: 100%; aspect-ratio: var(--ratio); object-fit: cover; border-radius: 4px; }
+  .pending { display: grid; place-items: center; background: var(--green-deep); border: 1px dashed var(--hairline); }
+  .pending span { font: 600 0.75rem/1 var(--sans); letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); }
+  figcaption { font-size: 0.9375rem; color: var(--text-muted); }
+</style>
