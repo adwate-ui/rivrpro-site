@@ -1,0 +1,18 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import { site } from '../content/site';
+const { frontmatter } = Astro.props as { frontmatter: { title: string; description: string; updated: string } };
+---
+<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+  <article class="container prose">
+    <p class="eyebrow">Updated {frontmatter.updated}</p>
+    <h1>{frontmatter.title}</h1>
+    <p class="muted">This site is run by {site.entity || 'RIVR'}{site.entityIds && ` (${site.entityIds})`}.</p>
+    <slot />
+  </article>
+</BaseLayout>
+<style>
+  .prose { max-width: 760px; padding-block: clamp(48px, 8vw, 120px); display: grid; gap: 20px; align-content: start; }
+  .prose :global(h2) { font-size: 1.75rem; margin-top: 24px; }
+  .prose :global(ul) { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+</style>
