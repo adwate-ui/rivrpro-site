@@ -8,3 +8,5 @@ worker/worker-configuration.d.ts
 test-results/
 playwright-report/
 .lighthouseci/
+# Lighthouse run inside WSL names its Chrome profile after a Windows temp path, as a folder in the cwd
+/C:*
