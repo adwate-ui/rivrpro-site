@@ -1,0 +1,23 @@
+---
+interface Props { size?: 'sm' | 'lg'; pro?: boolean }
+const { size = 'sm', pro = false } = Astro.props;
+const SPADE = 'M12 1.5C12 1.5 3 8.5 3 13.5C3 16.3 5.2 18.2 7.8 18.2C9.5 18.2 10.9 17.4 11.5 16.3C11.3 18.6 10.3 20.6 8.5 22L15.5 22C13.7 20.6 12.7 18.6 12.5 16.3C13.1 17.4 14.5 18.2 16.2 18.2C18.8 18.2 21 16.3 21 13.5C21 8.5 12 1.5 12 1.5Z';
+---
+<span class:list={['wordmark', size]} role="img" aria-label={pro ? 'RIVR Pro' : 'RIVR'}>
+  <span class="tiles" aria-hidden="true">
+    {['R', 'I', 'V', 'R'].map((letter) => <span class="tile">{letter}</span>)}
+    <span class="tile card"><svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d={SPADE} /></svg></span>
+  </span>
+  {pro && <span class="pro" aria-hidden="true">Pro</span>}
+</span>
+<style>
+  .wordmark { display: inline-flex; align-items: center; gap: 12px; }
+  .tiles { display: inline-flex; gap: 4px; }
+  .tile { display: inline-flex; align-items: center; justify-content: center; border-radius: 3px; background: var(--cream); color: var(--ink); font-family: var(--display); line-height: 1; }
+  .sm .tile { width: 24px; height: 32px; font-size: 20px; }
+  .lg .tile { width: 48px; height: 64px; border-radius: 6px; font-size: 44px; }
+  .card { background: var(--red); color: var(--cream); }
+  .sm svg { width: 16px; height: 16px; }
+  .lg svg { width: 32px; height: 32px; }
+  .pro { font: 600 0.75rem/1 var(--sans); letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); }
+</style>

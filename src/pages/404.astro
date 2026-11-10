@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Not found" description="This page doesn’t exist.">
+  <section class="page"><div class="container stack" style="--gap: 28px">
+    <p class="eyebrow">404</p>
+    <h1>Not found.</h1>
+    <p class="lead">This page doesn’t exist.</p>
+    <div><a class="btn btn-primary" href="/">Back to the site</a></div>
+  </div></section>
+</BaseLayout>
+<style>.page { padding-block: clamp(80px, 14vw, 200px); }</style>

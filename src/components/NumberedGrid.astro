@@ -1,0 +1,21 @@
+---
+interface Props { items: readonly { title: string; text: string }[] }
+const { items } = Astro.props;
+---
+<ol class="grid">
+  {items.map((item, index) => (
+    <li>
+      <span class="number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+      <h3>{item.title}</h3>
+      <p class="muted">{item.text}</p>
+    </li>
+  ))}
+</ol>
+<style>
+  /* Each cell draws its own hairline (collapsed by the -1px margins), so a short last row leaves no filled gap. */
+  .grid { list-style: none; margin: 0; padding: 0 1px 1px 0; display: grid; }
+  li { display: grid; gap: 12px; align-content: start; padding: 32px; border: 1px solid var(--hairline); margin: 0 -1px -1px 0; }
+  .number { font: 500 1rem/1 var(--display); color: var(--gold); }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+</style>

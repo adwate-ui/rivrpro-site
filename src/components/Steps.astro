@@ -1,0 +1,18 @@
+---
+interface Props { steps: readonly { title: string; text: string }[] }
+const { steps } = Astro.props;
+---
+<ol class="steps">
+  {steps.map((step, index) => (
+    <li>
+      <span class="eyebrow">Step {index + 1}</span>
+      <h3>{step.title}</h3>
+      <p class="muted">{step.text}</p>
+    </li>
+  ))}
+</ol>
+<style>
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 32px; }
+  li { display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--gold); }
+  @media (min-width: 960px) { .steps { grid-template-columns: repeat(3, 1fr); column-gap: 40px; row-gap: 48px; } }
+</style>

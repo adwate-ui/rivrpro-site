@@ -1,0 +1,7 @@
+---
+import { site, whatsappText } from '../content/site';
+interface Props { variant?: 'primary' | 'secondary' }
+const { variant = 'secondary' } = Astro.props;
+const href = site.whatsapp ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(whatsappText)}` : null;
+---
+{href && <a class:list={['btn', `btn-${variant}`]} href={href} rel="noopener" target="_blank">WhatsApp us</a>}

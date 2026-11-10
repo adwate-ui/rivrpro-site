@@ -1,0 +1,10 @@
+allowBuilds:
+  esbuild: true
+  workerd: true
+# astro2tsx 0.1.3 (used by `astro check`) loads @emnapi/runtime 2.0.0-beta.2 against core 1.11.3 and crashes
+# ("bridge.deleteEnv is not a function"); 0.1.4 pins the matching runtime. Drop both entries once the lockfile
+# resolves 0.1.4 by itself. pnpm holds back releases under a day old, hence the exclusion.
+minimumReleaseAgeExclude:
+  - '@astrojs/astro2tsx@0.1.4'
+overrides:
+  '@astrojs/astro2tsx': '>=0.1.4'

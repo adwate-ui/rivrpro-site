@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import { partner } from '../content/partner';
+import { accent } from '../lib/accent';
+---
+<BaseLayout title="Partner with RIVR" description={partner.description} og="partner">
+  <section class="page">
+    <div class="container split">
+      <div class="stack" style="--gap: 28px">
+        <p class="eyebrow">Enquiries</p>
+        <h1 set:html={accent(partner.title)} />
+        <p class="lead">{partner.intro}</p>
+        <ol class="next">{partner.next.map((step) => <li><h2>{step.title}</h2><p class="muted">{step.text}</p></li>)}</ol>
+        <div><WhatsAppButton /></div>
+      </div>
+      <EnquiryForm />
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .page { padding-block: clamp(48px, 8vw, 120px); }
+  .split { display: grid; gap: 56px; }
+  .split { align-items: start; }
+  .next { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 24px; }
+  .next li { display: grid; gap: 6px; padding-top: 16px; border-top: 1px solid var(--hairline); }
+  .next h2 { font-size: 1.375rem; }
+  @media (min-width: 960px) { .split { grid-template-columns: 1fr 1.2fr; } }
+</style>

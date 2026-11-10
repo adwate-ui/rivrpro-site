@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+# Every env and dev-vars file stays local (the repo is public); only the examples are committed.
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
+worker/worker-configuration.d.ts
+test-results/
+playwright-report/
+.lighthouseci/
+# Lighthouse run inside WSL names its Chrome profile after a Windows temp path, as a folder in the cwd
+/C:*
