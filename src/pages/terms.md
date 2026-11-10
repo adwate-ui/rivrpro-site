@@ -5,18 +5,14 @@ description: The terms for using rivrpro.com.
 updated: 10 November 2026
 ---
 
-## About this site
+## This site
 
-rivrpro.com describes the partnership models RIVR offers. Nothing on it is an offer, a contract or investment advice. Any partnership is agreed only in a written contract signed by both sides.
+Nothing here is an offer, a contract or investment advice. A partnership exists only once both sides sign a written agreement.
 
 ## Content
 
-The text, photos, screenshots and RIVR brand on this site belong to RIVR. Please do not copy them without permission.
-
-## Accuracy
-
-We keep this site accurate, but details can change. The written contract is what counts.
+The text, photos, screenshots and RIVR brand belong to RIVR. Don't copy them without permission.
 
 ## Law
 
-These terms are governed by the laws of India. The courts at Gurugram, Haryana, have jurisdiction.
+Indian law applies. The courts at Gurugram, Haryana, have jurisdiction.

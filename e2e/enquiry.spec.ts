@@ -10,7 +10,7 @@ test('a partner enquiry goes through to /thanks/', async ({ page }) => {
   await page.getByLabel('I have a venue').check();
   // Turnstile's always-pass test key fills its hidden field by itself.
   await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, { timeout: 20_000 });
-  await page.getByRole('button', { name: 'Send enquiry' }).click();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
   await expect(page).toHaveURL(/\/thanks\/$/);
 });
 
@@ -20,9 +20,9 @@ test('the form asks for an offer before posting', async ({ page }) => {
   await page.getByLabel('Mobile').fill('9876543210');
   await page.getByLabel('Email').fill('asha@example.com');
   await page.getByLabel('City').fill('Jaipur');
-  await page.getByLabel('I am looking for one').check();
-  await page.getByRole('button', { name: 'Send enquiry' }).click();
-  await expect(page.getByText('Choose at least one.')).toBeVisible();
+  await page.getByLabel('Looking for one').check();
+  await page.getByRole('button', { name: 'Send', exact: true }).click();
+  await expect(page.getByText('Pick at least one.')).toBeVisible();
   await expect(page).toHaveURL(/\/partner\/$/);
 });
 

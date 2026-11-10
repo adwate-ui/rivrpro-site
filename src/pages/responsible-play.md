@@ -1,22 +1,22 @@
 ---
 layout: ../layouts/LegalLayout.astro
 title: Responsible play
-description: How RIVR clubs keep poker a game of skill played responsibly.
+description: How RIVR clubs keep play responsible.
 updated: 10 November 2026
 ---
 
 ## Adults only
 
-RIVR clubs are private, members-only clubs for adults aged 18 and over. Every member's identity is checked at the club.
+RIVR clubs are private and members-only, for people aged 18 and over. Every member's ID is checked.
 
 ## A game of skill
 
-Poker at RIVR clubs is played as a game of skill, under house rules every member can read.
+Poker at RIVR is played as a game of skill, under house rules every member can read.
 
-## Playing responsibly
+## Play within your means
 
-Set a limit before you play, and stop when you reach it. Never play with money you need for other things. If play stops being fun, take a break and talk to someone you trust.
+Set a limit before you play and stop when you reach it. If it stops being fun, take a break.
 
-## Partners
+## Every partner club
 
-Every RIVR partner club follows the same rules: adults only, members only, identity checked, and responsible play first.
+The same rules apply in every RIVR partner club.

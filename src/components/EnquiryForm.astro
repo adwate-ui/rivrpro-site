@@ -4,9 +4,9 @@ import { partner } from '../content/partner';
 import { site } from '../content/site';
 const f = partner.fields;
 const OFFERS = [['rivr-club', 'A RIVR club'], ['management', 'Management'], ['system', 'The RIVR system']] as const;
-const VENUES = [['have-venue', 'I have a venue'], ['looking', 'I am looking for one'], ['running-club', 'I run a club now']] as const;
+const VENUES = Object.entries(partner.venues);
 ---
-<form class="form" method="post" action="/api/enquiry" data-enquiry data-errors={JSON.stringify(partner.errors)}>
+<form class="form" method="post" action="/api/enquiry" data-enquiry data-errors={JSON.stringify(partner.errors)} data-status-text={JSON.stringify(partner.status)}>
   <div class="row">
     <label>{f.name}<input name="name" autocomplete="name" required minlength="2" maxlength="100" aria-describedby="e-name" /></label>
     <p class="error" id="e-name" data-error-for="name"></p>
@@ -51,6 +51,7 @@ const VENUES = [['have-venue', 'I have a venue'], ['looking', 'I am looking for 
   const form = document.querySelector<HTMLFormElement>('[data-enquiry]');
   if (form) {
     const messages = JSON.parse(form.dataset.errors ?? '{}') as Record<string, string>;
+    const say = JSON.parse(form.dataset.statusText ?? '{}') as Record<'sending' | 'fields' | 'check' | 'failed' | 'offline', string>;
     const status = form.querySelector<HTMLElement>('[data-status]')!;
     const fallback = form.querySelector<HTMLElement>('[data-fallback]')!;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
@@ -86,23 +87,23 @@ const VENUES = [['have-venue', 'I have a venue'], ['looking', 'I am looking for 
         return;
       }
       button.disabled = true;
-      status.textContent = 'Sending…';
+      status.textContent = say.sending;
       try {
         const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { accept: 'application/json' } });
         const reply = (await response.json()) as Reply;
         if (reply.ok) { window.location.assign('/thanks/'); return; }
         if (reply.errors && reply.errors.length > 0) {
           reply.errors.forEach(show);
-          status.textContent = 'Check the fields marked above.';
+          status.textContent = say.fields;
         } else if (reply.reason === 'check') {
-          status.textContent = 'The spam check did not pass. Try again.';
+          status.textContent = say.check;
           (window as unknown as { turnstile?: { reset(): void } }).turnstile?.reset();
         } else {
-          status.textContent = 'Not sent. Message us on WhatsApp instead.';
+          status.textContent = say.failed;
           fallback.hidden = false;
         }
       } catch {
-        status.textContent = 'Not sent. Check your connection, or message us on WhatsApp.';
+        status.textContent = say.offline;
         fallback.hidden = false;
       } finally {
         button.disabled = false;

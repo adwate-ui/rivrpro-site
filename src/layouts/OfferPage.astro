@@ -21,10 +21,10 @@ const plainTitle = offer.title.replace(/\*/g, '');
       <div class="actions"><a class="btn btn-primary" href="/partner/">Partner with RIVR</a><WhatsAppButton /></div>
     </div>
   </section>
-  <Section number="01" eyebrow="Who it is for">
+  <Section number="01" eyebrow="Who it’s for">
     <ul class="list">{offer.forWho.map((line) => <li>{line}</li>)}</ul>
   </Section>
-  <Section number="02" eyebrow="What each side brings" tone="deep">
+  <Section number="02" eyebrow="Who brings what" tone="deep">
     <div class="two">
       <div class="stack"><h2>RIVR <em>brings</em></h2><ul class="list">{offer.rivrProvides.map((line) => <li>{line}</li>)}</ul></div>
       <div class="stack"><h2>You <em>bring</em></h2><ul class="list">{offer.partnerProvides.map((line) => <li>{line}</li>)}</ul></div>
@@ -36,7 +36,7 @@ const plainTitle = offer.title.replace(/\*/g, '');
   <Section number="04" eyebrow={home.steps.eyebrow} tone="deep">
     <h2 set:html={accent(home.steps.title)} />
     <Steps steps={home.steps.items} />
-    <div class="actions"><a class="btn btn-primary" href="/partner/">Start a conversation</a></div>
+    <div class="actions"><a class="btn btn-primary" href="/partner/">Talk to us</a></div>
   </Section>
 </BaseLayout>
 <style>
