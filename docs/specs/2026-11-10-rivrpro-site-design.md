@@ -47,7 +47,12 @@ Cloudflare Worker "rivrpro-site"  (rivrpro.com, www → apex)
 - **Astro, `output: 'static'`.** Every page is plain HTML at build time. The only client JavaScript is the form's script, under 10 KB. Turnstile loads only when the form comes near the screen, so it never slows the first view.
 - **One hand-written Worker** (`worker/index.ts`) with an `ASSETS` binding and a `send_email` binding. It has no framework adapter, so Astro upgrades cannot break the API route.
 - **No database, KV or storage.** An enquiry exists only as the email it becomes.
-- **Secrets live in the Worker, never in the repo** (the repo is public): `TURNSTILE_SECRET` and `ENQUIRY_TO` (the owner's inbox). `ENQUIRY_FROM` (an address on rivrpro.com), the Turnstile site key and the WhatsApp number are public config values.
+- **Secrets live in the Worker, never in the repo** (the repo is public): `TURNSTILE_SECRET`.
+- **Public config values:**
+  - `ENQUIRY_FROM`: `enquiries@rivrpro.com`.
+  - `ENQUIRY_TO`: `info@rivrpro.com` (owner, 10 Nov). The `send_email` binding is locked to that one address.
+  - The Turnstile site key and the WhatsApp number.
+- **Mail:** rivrpro.com's mail is on Google Workspace (its MX records point to Google). Cloudflare Email Routing must never be turned on for it, because that replaces the MX records. Sending uses Cloudflare Email Sending, which adds records only under `cf-bounce` and `_dmarc`.
 - **Before launch** the Worker serves on its workers.dev address, with `X-Robots-Tag: noindex` on every response. **At launch** the owner adds rivrpro.com as a Custom Domain, a Cloudflare Redirect Rule sends www.rivrpro.com to the apex, and noindex comes off.
 
 ## Pages
@@ -82,10 +87,13 @@ Cloudflare Worker "rivrpro-site"  (rivrpro.com, www → apex)
 - **Colours,** copied from rivr-platform's `tokens.json`: green `#0E3B2C` (page), deep green `#0A2A20` (raised surfaces), cream `#F3EDE0` (text), gold `#C9A85C` (accent, buttons, hairlines at 25% alpha), red `#C4162A` (the spade only). Muted text is cream at 70%, about 5.6:1 on green. Every text and background pair meets WCAG AA.
 - **Type:** Bodoni Moda for headlines, from 44 px on phones to 96 px at 1440 px, with one gold italic word each. Instrument Sans for body text, 16–20 px, and for the eyebrows (12–13 px, uppercase, 0.2em tracking). Both are self-hosted as woff2, subset to Latin, through Astro's Fonts API: all three files are preloaded, and each family gets a fallback sized to its metrics, so nothing moves when the fonts arrive (layout shift 0.000 on every page).
 - **Layout:** a 1200 px container, generous vertical rhythm (96–160 px between sections on desktop), numbered section eyebrows ("01 / The flagship"), and gold hairline rules.
-- **Imagery:**
-  - Real photos only, as AVIF/WebP at responsive sizes with explicit dimensions.
+- **Imagery** (owner, 10 Nov: "Don't leave any photos blank. Use the existing assets/create screenshots"):
+  - **Club photos:** RIVR's own published website imagery (`hero`, `room`, `tables`, `lounge`) until the club's photographs replace them. The swap is a file drop in `src/assets/photos/`.
+  - **"The technology" photo:** composed from the real console, TV board and member card screens on RIVR green.
+  - **Screens:** member app and console from staging sample data; the TV waitlist board from the platform's renderer; the dealer tablet from the dealer-tablet training video.
+  - Images are served as AVIF/WebP at responsive sizes with explicit dimensions.
   - Screenshots sit in a thin device frame drawn in CSS: phone for the app, browser for the console, tablet, and TV.
-  - Before the photos arrive, sections use deep-green panels marked "Photo to come". They never use stock photos or AI-generated images.
+  - The "Photo to come" panel remains only as a fallback for a missing file. No page uses it.
 - **Motion:** a fade-and-rise as sections scroll in, done with CSS scroll-driven animation and no JavaScript. Browsers without it show sections as they are; nothing hidden waits on a script. None at all with `prefers-reduced-motion`. No parallax, carousels or marquees.
 - **Logo:** the RIVR tile wordmark with its spade, copied as SVG from rivr-platform.
 
@@ -166,7 +174,7 @@ Every failure is logged in the Worker with no personal data. After any refusal, 
 ## Launch checklist
 
 1. The owner approves the copy and supplies the photos.
-2. Email sending is set up for rivrpro.com, and the owner's inbox is verified as a destination.
+2. rivrpro.com is onboarded for Cloudflare Email Sending (not Email Routing), and a real test enquiry reaches info@rivrpro.com.
 3. A real test enquiry reaches the inbox, the WhatsApp button opens the right chat, and Turnstile works on the real hostname.
 4. The legal entity name and CIN/GST (if shown) are in the footer and privacy notice.
 5. The owner adds rivrpro.com as a Custom Domain and a Redirect Rule for www; the noindex header is removed; the sitemap is submitted to Google Search Console.

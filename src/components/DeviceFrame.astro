@@ -3,7 +3,8 @@ import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 interface Props { kind: 'phone' | 'browser' | 'tablet' | 'tv'; src: ImageMetadata | undefined; alt: string }
 const { kind, src, alt } = Astro.props;
-const RATIO = { phone: '390 / 844', browser: '1440 / 900', tablet: '1280 / 800', tv: '1920 / 1080' } as const;
+// Each kind at the size its screenshot is taken (the tablet's from the dealer-tablet training video, 1180 x 820).
+const RATIO = { phone: '390 / 844', browser: '1440 / 900', tablet: '1180 / 820', tv: '1920 / 1080' } as const;
 ---
 <div class:list={['frame', kind]} style={`--ratio: ${RATIO[kind]}`}>
   {kind === 'browser' && <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>}
