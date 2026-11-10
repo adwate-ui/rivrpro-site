@@ -110,7 +110,7 @@ Plus the Turnstile widget.
 
 1. The form is a normal HTML form posting to `/api/enquiry`. With JavaScript (which Turnstile needs) it sends by `fetch` and shows an inline success or error. If our script fails, the plain post still works. A browser with no JavaScript at all cannot pass Turnstile; it lands on `/not-sent`, which offers WhatsApp.
 2. The Worker validates every field: the same rules as the browser, re-checked, and a length cap on each.
-3. It verifies Turnstile with `remoteip`, and rejects a filled honeypot silently.
+3. It verifies Turnstile with `remoteip`, requiring the token to come from the site's own hostname, and rejects a filled honeypot silently. It then allows at most 3 sends a minute from one address (Workers rate limiting), counted only after every check passes.
 4. It sends one plain-text email from `ENQUIRY_FROM` to `ENQUIRY_TO`, with the subject "Partner enquiry: {name}, {city} ({offers})" and `Reply-To` set to the enquirer.
 5. Success: 303 to `/thanks`, or `{ ok: true }` for fetch. Any failure on a plain post: 303 to `/not-sent`.
 
@@ -119,12 +119,14 @@ Plus the Turnstile widget.
 | Failure | Response | What the visitor sees |
 |---|---|---|
 | Validation | 400 | The field errors, inline |
-| Turnstile | 403 | "Check failed. Try again." |
-| Email | 502 | "Not sent. Message us on WhatsApp instead", with the WhatsApp button |
+| Turnstile refused | 403 | "Check failed. Try again."; the second time, the WhatsApp button too |
+| Turnstile unavailable (siteverify down, wrong or test secret) | 503 | "Not sent. Message us on WhatsApp.", with the WhatsApp button |
+| Too many sends | 429 | "Too many tries. Wait a minute." |
+| Email | 502 | "Not sent. Message us on WhatsApp.", with the WhatsApp button |
 
-Every failure is logged in the Worker with no personal data.
+Every failure is logged in the Worker with no personal data. After any refusal, the form gets a fresh Turnstile token.
 
-**Not built:** auto-reply to the enquirer, storage, a CRM, rate limiting beyond Turnstile (YAGNI).
+**Not built:** auto-reply to the enquirer, storage, a CRM.
 
 ## Content and copy
 
@@ -150,16 +152,16 @@ Every failure is logged in the Worker with no personal data.
 
 ## Testing
 
-- **Unit tests** (Vitest) for the Worker: field validation, the honeypot, a Turnstile failure, an email failure, the success redirect, and the fetch JSON responses. Turnstile and the email sender are passed in, so tests use fakes.
-- **End-to-end** (Playwright, against `wrangler dev` with the Turnstile test keys and a fake email binding):
+- **Unit tests** (Vitest) for the Worker: field validation, the honeypot, Turnstile refused and unavailable, the rate limit, size limits, an email failure, the success redirect, and the fetch JSON responses. Turnstile, the limiter and the email sender are passed in, so tests use fakes.
+- **End-to-end** (Playwright, against `wrangler dev` with the Turnstile test keys; email goes through wrangler's local `send_email` simulator, which checks the message as Cloudflare does):
   - every page renders with no console errors;
   - navigation works;
   - the form succeeds, the server returns field errors, and a post without a Turnstile token lands on `/not-sent`;
   - axe checks run on every page;
   - full-page screenshots are taken at 390, 1440 and 1920 px.
 - **CI (GitHub Actions):**
-  - **Pull request:** typecheck, lint, unit tests, build, e2e, Lighthouse CI against the budgets, the no-club-links check, then `wrangler versions upload` for a preview URL.
-  - **main:** the same checks, then `wrangler deploy`.
+  - **Pull request:** typecheck, unit tests, build, e2e, Lighthouse CI against the budgets, the no-club-links check. No preview deploy: a preview would run pull-request code with the production secrets.
+  - **main:** the same checks, then `wrangler deploy` from the `production` environment, which holds the Cloudflare token and only `main` may use.
 
 ## Launch checklist
 
