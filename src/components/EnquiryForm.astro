@@ -1,1 +1,133 @@
-<div></div>
+---
+import WhatsAppButton from './WhatsAppButton.astro';
+import { partner } from '../content/partner';
+import { site } from '../content/site';
+const f = partner.fields;
+const OFFERS = [['rivr-club', 'A RIVR club'], ['management', 'Management'], ['system', 'The RIVR system']] as const;
+const VENUES = [['have-venue', 'I have a venue'], ['looking', 'I am looking for one'], ['running-club', 'I run a club now']] as const;
+---
+<form class="form" method="post" action="/api/enquiry" data-enquiry data-errors={JSON.stringify(partner.errors)}>
+  <div class="row">
+    <label>{f.name}<input name="name" autocomplete="name" required minlength="2" maxlength="100" aria-describedby="e-name" /></label>
+    <p class="error" id="e-name" data-error-for="name"></p>
+  </div>
+  <div class="pair">
+    <div class="row">
+      <label>{f.phone}<input name="phone" type="tel" inputmode="tel" autocomplete="tel" required aria-describedby="e-phone" /></label>
+      <p class="error" id="e-phone" data-error-for="phone"></p>
+    </div>
+    <div class="row">
+      <label>{f.email}<input name="email" type="email" autocomplete="email" required maxlength="254" aria-describedby="e-email" /></label>
+      <p class="error" id="e-email" data-error-for="email"></p>
+    </div>
+  </div>
+  <div class="row">
+    <label>{f.city}<input name="city" autocomplete="address-level2" required minlength="2" maxlength="60" aria-describedby="e-city" /></label>
+    <p class="error" id="e-city" data-error-for="city"></p>
+  </div>
+  <fieldset aria-describedby="e-offers">
+    <legend>{f.offers}</legend>
+    {OFFERS.map(([value, label]) => <label class="choice"><input type="checkbox" name="offers" value={value} />{label}</label>)}
+    <p class="error" id="e-offers" data-error-for="offers"></p>
+  </fieldset>
+  <fieldset aria-describedby="e-venueStatus">
+    <legend>{f.venueStatus}</legend>
+    {VENUES.map(([value, label]) => <label class="choice"><input type="radio" name="venueStatus" value={value} required />{label}</label>)}
+    <p class="error" id="e-venueStatus" data-error-for="venueStatus"></p>
+  </fieldset>
+  <div class="row">
+    <label>{f.message}<textarea name="message" rows="4" maxlength="2000" aria-describedby="e-message"></textarea></label>
+    <p class="error" id="e-message" data-error-for="message"></p>
+  </div>
+  <label class="trap" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off" /></label>
+  <div class="cf-turnstile" data-sitekey={site.turnstileSiteKey} data-theme="dark"></div>
+  <button class="btn btn-primary" type="submit">{f.submit}</button>
+  <p class="status" role="status" data-status></p>
+  <div class="fallback" data-fallback hidden><WhatsAppButton /></div>
+</form>
+
+<script>
+  type Reply = { ok: boolean; errors?: string[]; reason?: string };
+  const form = document.querySelector<HTMLFormElement>('[data-enquiry]');
+  if (form) {
+    const messages = JSON.parse(form.dataset.errors ?? '{}') as Record<string, string>;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const fallback = form.querySelector<HTMLElement>('[data-fallback]')!;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const show = (field: string) => {
+      const slot = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
+      if (slot) slot.textContent = messages[field] ?? 'Check this.';
+    };
+
+    // A field's message goes as soon as it is answered.
+    form.addEventListener('change', (event) => {
+      const name = (event.target as HTMLInputElement | null)?.name;
+      const slot = name ? form.querySelector<HTMLElement>(`[data-error-for="${name}"]`) : null;
+      if (slot) slot.textContent = '';
+    });
+
+    // Turnstile loads only when the form comes near the screen, so it never slows the first view.
+    new IntersectionObserver((entries, watcher) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      watcher.disconnect();
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      script.async = true;
+      document.head.append(script);
+    }, { rootMargin: '600px' }).observe(form);
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((slot) => { slot.textContent = ''; });
+      fallback.hidden = true;
+      if (!form.querySelector('input[name="offers"]:checked')) {
+        show('offers');
+        form.querySelector<HTMLInputElement>('input[name="offers"]')?.focus();
+        return;
+      }
+      button.disabled = true;
+      status.textContent = 'Sending…';
+      try {
+        const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { accept: 'application/json' } });
+        const reply = (await response.json()) as Reply;
+        if (reply.ok) { window.location.assign('/thanks/'); return; }
+        if (reply.errors && reply.errors.length > 0) {
+          reply.errors.forEach(show);
+          status.textContent = 'Check the fields marked above.';
+        } else if (reply.reason === 'check') {
+          status.textContent = 'The spam check did not pass. Try again.';
+          (window as unknown as { turnstile?: { reset(): void } }).turnstile?.reset();
+        } else {
+          status.textContent = 'Not sent. Message us on WhatsApp instead.';
+          fallback.hidden = false;
+        }
+      } catch {
+        status.textContent = 'Not sent. Check your connection, or message us on WhatsApp.';
+        fallback.hidden = false;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .form { display: grid; gap: 20px; }
+  .pair { display: grid; gap: 20px; }
+  .row { display: grid; gap: 6px; }
+  label { display: grid; gap: 8px; font-size: 0.9375rem; color: var(--text-muted); }
+  input:not([type='checkbox'], [type='radio']), textarea {
+    width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid rgb(243 237 224 / 0.35); border-radius: 2px;
+    background: var(--green); color: var(--cream); font: inherit;
+  }
+  input:focus, textarea:focus { border-color: var(--gold); }
+  fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 10px; }
+  legend { margin-bottom: 8px; font-size: 0.9375rem; color: var(--text-muted); }
+  .choice { display: flex; align-items: center; gap: 12px; min-height: 44px; color: var(--cream); font-size: 1rem; }
+  .choice input { width: 20px; height: 20px; accent-color: var(--gold); }
+  .error { margin: 0; font-size: 0.875rem; color: #f2b8bf; }
+  .error:empty { display: none; }
+  .trap { position: absolute; left: -9999px; }
+  .status { min-height: 1.6em; }
+  @media (min-width: 720px) { .pair { grid-template-columns: 1fr 1fr; } }
+</style>

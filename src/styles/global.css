@@ -18,7 +18,8 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+/* scroll-padding-top: anything scrolled into view (an invalid field, #enquiry) clears the 72 px sticky header. */
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 96px; }
 body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; background: var(--green); color: var(--text); font: 400 1.0625rem/1.6 var(--sans); }
 /* Short pages (thanks, 404) keep the footer at the bottom of the screen. */
 main { flex: 1; }
@@ -33,7 +34,8 @@ p { margin: 0; max-width: 62ch; }
 
 .container { width: min(100% - 2 * var(--gutter), var(--container)); margin-inline: auto; }
 .section { padding-block: var(--section); border-top: 1px solid var(--hairline); }
-.stack { display: grid; gap: var(--gap, 24px); }
+/* align-content: start, so a stack beside a taller neighbour keeps its spacing instead of spreading out. */
+.stack { display: grid; gap: var(--gap, 24px); align-content: start; }
 .eyebrow { font: 600 0.8125rem/1.2 var(--sans); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
 .lead { font-size: clamp(1.125rem, 1.6vw, 1.3125rem); color: var(--text-muted); }
 .muted { color: var(--text-muted); }

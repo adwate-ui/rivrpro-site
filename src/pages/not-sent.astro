@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import { partner } from '../content/partner';
+import { accent } from '../lib/accent';
+---
+<BaseLayout title="Not sent" description={partner.notSent.text}>
+  <section class="page"><div class="container stack" style="--gap: 28px">
+    <h1 set:html={accent(partner.notSent.title)} />
+    <p class="lead">{partner.notSent.text}</p>
+    <div class="actions"><a class="btn btn-secondary" href="/partner/">Try again</a><WhatsAppButton /></div>
+  </div></section>
+</BaseLayout>
+<style>
+  .page { padding-block: clamp(80px, 14vw, 200px); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+</style>
