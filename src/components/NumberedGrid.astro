@@ -12,8 +12,9 @@ const { items } = Astro.props;
   ))}
 </ol>
 <style>
-  .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
-  li { display: grid; gap: 12px; align-content: start; padding: 32px; background: var(--green); }
+  /* Each cell draws its own hairline (collapsed by the -1px margins), so a short last row leaves no filled gap. */
+  .grid { list-style: none; margin: 0; padding: 0 1px 1px 0; display: grid; }
+  li { display: grid; gap: 12px; align-content: start; padding: 32px; border: 1px solid var(--hairline); margin: 0 -1px -1px 0; }
   .number { font: 500 1rem/1 var(--display); color: var(--gold); }
   @media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }

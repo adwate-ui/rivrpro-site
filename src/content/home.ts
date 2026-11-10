@@ -5,7 +5,8 @@ export const home = {
   description: 'Open, run or upgrade a members-only poker club with RIVR: the brand, the team and the system behind RIVR Gurugram.',
   hero: {
     eyebrow: 'RIVR Pro · Members-only poker clubs',
-    title: 'Members-only poker, *run* like RIVR.',
+    // U+2011, a non-breaking hyphen, so the headline never splits "Members-" from "only".
+    title: 'Members‑only poker, *run* like RIVR.',
     lead: 'RIVR Gurugram is our flagship: a private members’ club with its own app, floor console, dealer tablets and TV boards. RIVR Pro brings the same room, the same standards and the same system to partners across India.',
     primary: { label: 'Partner with RIVR', href: '/partner/' },
     secondary: { label: 'See the flagship', href: '/flagship/' },

@@ -1,4 +1,97 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import Photo from '../components/Photo.astro';
+import DeviceFrame from '../components/DeviceFrame.astro';
+import OfferCard from '../components/OfferCard.astro';
+import NumberedGrid from '../components/NumberedGrid.astro';
+import Steps from '../components/Steps.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import { home } from '../content/home';
+import { offers } from '../content/offers';
+import { photo, screen } from '../content/media';
+import { accent } from '../lib/accent';
 ---
-<BaseLayout title="RIVR Pro" description="Layout check."><div class="container section"><h1>Members-only poker, <em>run</em> like RIVR.</h1></div></BaseLayout>
+<BaseLayout title={home.title} description={home.description}>
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="stack" style="--gap: 28px">
+        <p class="eyebrow">{home.hero.eyebrow}</p>
+        <h1 set:html={accent(home.hero.title)} />
+        <p class="lead">{home.hero.lead}</p>
+        <div class="actions">
+          <a class="btn btn-primary" href={home.hero.primary.href}>{home.hero.primary.label}</a>
+          <a class="btn btn-secondary" href={home.hero.secondary.href}>{home.hero.secondary.label}</a>
+        </div>
+      </div>
+      <Photo src={photo(home.hero.photo)} alt={home.hero.photoAlt} ratio="4 / 5" eager sizes="(min-width: 960px) 480px, 100vw" />
+    </div>
+  </section>
+
+  <Section number="01" eyebrow={home.flagship.eyebrow}>
+    <h2 set:html={accent(home.flagship.title)} />
+    <p class="lead">{home.flagship.text}</p>
+    <div class="three">
+      {home.flagship.photos.map((each) => <Photo src={photo(each.name)} alt={each.alt} caption={each.caption} sizes="(min-width: 960px) 380px, 100vw" />)}
+    </div>
+  </Section>
+
+  <Section number="02" eyebrow={home.offers.eyebrow} tone="deep">
+    <h2 set:html={accent(home.offers.title)} />
+    <div class="three">
+      {offers.map((offer) => <OfferCard href={`/${offer.slug}/`} eyebrow={offer.eyebrow} title={offer.cardTitle} text={offer.cardText} />)}
+    </div>
+  </Section>
+
+  <Section number="03" eyebrow={home.system.eyebrow}>
+    <h2 set:html={accent(home.system.title)} />
+    <NumberedGrid items={home.system.items} />
+  </Section>
+
+  <Section number="04" eyebrow={home.technology.eyebrow} tone="deep">
+    <h2 set:html={accent(home.technology.title)} />
+    <div class="screens">
+      {home.technology.screens.map((each) => (
+        <figure class="screen">
+          <DeviceFrame kind={each.kind} src={screen(each.name)} alt={each.title} />
+          <figcaption class="stack" style="--gap: 8px"><h3>{each.title}</h3><p class="muted">{each.text}</p></figcaption>
+        </figure>
+      ))}
+    </div>
+  </Section>
+
+  <Section number="05" eyebrow={home.steps.eyebrow}>
+    <h2 set:html={accent(home.steps.title)} />
+    <Steps steps={home.steps.items} />
+  </Section>
+
+  <Section number="06" eyebrow={home.enquiry.eyebrow} id="enquiry" tone="deep">
+    <div class="split">
+      <div class="stack" style="--gap: 24px">
+        <h2 set:html={accent(home.enquiry.title)} />
+        <p class="lead">{home.enquiry.text}</p>
+        <div><WhatsAppButton /></div>
+      </div>
+      <EnquiryForm />
+    </div>
+  </Section>
+</BaseLayout>
+<style>
+  .hero { padding-block: clamp(48px, 8vw, 120px); }
+  .hero-grid { display: grid; gap: 48px; align-items: center; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .three { display: grid; gap: 24px; }
+  .screens { display: grid; gap: 56px; }
+  .screen { margin: 0; display: grid; gap: 20px; align-content: start; }
+  /* The phone sits centred and smaller, so it does not tower over the console beside it. */
+  .screen :global(.phone) { max-width: 240px; justify-self: center; }
+  .hero h1 { font-size: clamp(2.75rem, 6vw, 5.25rem); }
+  .split { display: grid; gap: 48px; }
+  @media (min-width: 960px) {
+    .hero-grid { grid-template-columns: 1.4fr 1fr; }
+    .three { grid-template-columns: repeat(3, 1fr); }
+    .screens { grid-template-columns: repeat(2, 1fr); }
+    .split { grid-template-columns: 1fr 1.2fr; }
+  }
+</style>
