@@ -9,8 +9,9 @@
   --text: var(--cream);
   --text-muted: rgb(243 237 224 / 0.7);
   --hairline: rgb(201 168 92 / 0.25);
-  --display: 'Bodoni Moda Variable', 'Bodoni Moda', Georgia, serif;
-  --sans: 'Instrument Sans Variable', 'Instrument Sans', system-ui, sans-serif;
+  /* --font-display and --font-text come from Astro's Fonts API (astro.config.mjs), with metric-matched fallbacks. */
+  --display: var(--font-display);
+  --sans: var(--font-text);
   --container: 1200px;
   --gutter: clamp(16px, 4vw, 40px);
   --section: clamp(80px, 10vw, 160px);

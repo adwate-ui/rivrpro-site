@@ -80,7 +80,7 @@ Cloudflare Worker "rivrpro-site"  (rivrpro.com, www → apex)
 ## Look
 
 - **Colours,** copied from rivr-platform's `tokens.json`: green `#0E3B2C` (page), deep green `#0A2A20` (raised surfaces), cream `#F3EDE0` (text), gold `#C9A85C` (accent, buttons, hairlines at 25% alpha), red `#C4162A` (the spade only). Muted text is cream at 70%, about 5.6:1 on green. Every text and background pair meets WCAG AA.
-- **Type:** Bodoni Moda for headlines, from 44 px on phones to 96 px at 1440 px, with one gold italic word each. Instrument Sans for body text, 16–20 px, and for the eyebrows (12–13 px, uppercase, 0.2em tracking). Both are self-hosted as woff2, subset to Latin, with `font-display: swap` and the headline font preloaded.
+- **Type:** Bodoni Moda for headlines, from 44 px on phones to 96 px at 1440 px, with one gold italic word each. Instrument Sans for body text, 16–20 px, and for the eyebrows (12–13 px, uppercase, 0.2em tracking). Both are self-hosted as woff2, subset to Latin, through Astro's Fonts API: all three files are preloaded, and each family gets a fallback sized to its metrics, so nothing moves when the fonts arrive (layout shift 0.000 on every page).
 - **Layout:** a 1200 px container, generous vertical rhythm (96–160 px between sections on desktop), numbered section eyebrows ("01 / The flagship"), and gold hairline rules.
 - **Imagery:**
   - Real photos only, as AVIF/WebP at responsive sizes with explicit dimensions.

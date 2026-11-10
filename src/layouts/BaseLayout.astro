@@ -1,10 +1,6 @@
 ---
-import '@fontsource-variable/bodoni-moda/index.css';
-import '@fontsource-variable/bodoni-moda/wght-italic.css';
-import '@fontsource-variable/instrument-sans/index.css';
+import { Font } from 'astro:assets';
 import '../styles/global.css';
-// The headline font's Latin file, preloaded so the hero's Bodoni does not swap in late.
-import bodoniLatin from '@fontsource-variable/bodoni-moda/files/bodoni-moda-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../content/site';
@@ -42,7 +38,8 @@ const organisation = JSON.stringify({
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#0e3b2c" />
-    <link rel="preload" as="font" type="font/woff2" href={bodoniLatin} crossorigin />
+    <Font cssVariable="--font-display" preload />
+    <Font cssVariable="--font-text" preload />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <script type="application/ld+json" set:html={organisation} />
