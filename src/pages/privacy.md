@@ -15,7 +15,7 @@ It reaches us as an email. We use it to reply to you, and for nothing else. We d
 
 ## Spam checks and analytics
 
-Cloudflare Turnstile checks that the form comes from a person. Cloudflare Web Analytics counts visits without cookies. The site sets no cookies of its own.
+Cloudflare Turnstile checks that the form comes from a person; Cloudflare sees your IP address to do this. Cloudflare Web Analytics counts visits without cookies. The site sets no cookies of its own.
 
 ## How long we keep it
 

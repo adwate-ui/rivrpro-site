@@ -11,9 +11,17 @@ const OPTIONS = {
   now: new Date('2026-11-10T12:00:00Z'), id: '1f0e2d3c-aaaa-bbbb-cccc-1234567890ab',
 };
 
+const fromBase64 = (value: string) => new TextDecoder().decode(Uint8Array.from(atob(value), (c) => c.charCodeAt(0)));
+
 function decodeBody(raw: string): string {
-  const body = raw.split('\r\n\r\n')[1]!.replace(/\r\n/g, '');
-  return new TextDecoder().decode(Uint8Array.from(atob(body), (c) => c.charCodeAt(0)));
+  return fromBase64(raw.split('\r\n\r\n')[1]!.replace(/\r\n/g, ''));
+}
+
+/** The Subject header, unfolded, with each encoded word decoded and joined. */
+function decodeSubject(head: string): string {
+  const unfolded = head.replace(/\r\n /g, ' ');
+  const line = unfolded.split('\r\n').find((each) => each.startsWith('Subject: '))!;
+  return [...line.matchAll(/=\?UTF-8\?B\?([^?]+)\?=/g)].map((match) => fromBase64(match[1]!)).join('');
 }
 
 describe('enquiryText', () => {
@@ -42,11 +50,17 @@ describe('buildEnquiryEmail', () => {
     expect(head).toContain('Content-Type: text/plain; charset=UTF-8');
   });
 
-  it('encodes the subject so any name survives', () => {
-    const subject = head!.split('\r\n').find((line) => line.startsWith('Subject: '))!;
-    const encoded = subject.match(/^Subject: =\?UTF-8\?B\?(.+)\?=$/)![1]!;
-    expect(new TextDecoder().decode(Uint8Array.from(atob(encoded), (c) => c.charCodeAt(0))))
-      .toBe('Partner enquiry: Asha Verma, Jaipur (A RIVR club, Management)');
+  it('dates it with a numeric zone, as RFC 5322 asks', () => {
+    expect(head).toContain('Date: Tue, 10 Nov 2026 12:00:00 +0000');
+  });
+
+  it('encodes the subject in folded words of at most 75 characters, any name surviving', () => {
+    expect(decodeSubject(head!)).toBe('Partner enquiry: Asha Verma, Jaipur (A RIVR club, Management)');
+    const long = buildEnquiryEmail({ ...ENQUIRY, name: 'Ānanya Śrīnivāsan '.repeat(5).trim(), offers: ['rivr-club', 'management', 'system'] }, OPTIONS);
+    const longHead = long.raw.split('\r\n\r\n')[0]!;
+    expect(decodeSubject(longHead)).toBe(`Partner enquiry: ${'Ānanya Śrīnivāsan '.repeat(5).trim()}, Jaipur (A RIVR club, Management, The RIVR system)`);
+    for (const word of longHead.match(/=\?UTF-8\?B\?[^?]+\?=/g)!) expect(word.length).toBeLessThanOrEqual(75);
+    expect(longHead.split('\r\n').every((line) => line.length <= 78)).toBe(true);
   });
 
   it('carries the body as base64 lines of at most 76 characters', () => {

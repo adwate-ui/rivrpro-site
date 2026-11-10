@@ -48,23 +48,34 @@ const VENUES = Object.entries(partner.venues);
 
 <script>
   type Reply = { ok: boolean; errors?: string[]; reason?: string };
+  type Say = Record<'sending' | 'wait' | 'fields' | 'check' | 'busy' | 'failed' | 'offline', string>;
   const form = document.querySelector<HTMLFormElement>('[data-enquiry]');
   if (form) {
     const messages = JSON.parse(form.dataset.errors ?? '{}') as Record<string, string>;
-    const say = JSON.parse(form.dataset.statusText ?? '{}') as Record<'sending' | 'fields' | 'check' | 'failed' | 'offline', string>;
+    const say = JSON.parse(form.dataset.statusText ?? '{}') as Say;
     const status = form.querySelector<HTMLElement>('[data-status]')!;
     const fallback = form.querySelector<HTMLElement>('[data-fallback]')!;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const turnstile = () => (window as unknown as { turnstile?: { reset(): void } }).turnstile;
+    const fieldsNamed = (name: string) => [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`)];
+    let failedChecks = 0;
+
+    /** Marks a field wrong: its message, aria-invalid for screen readers. */
     const show = (field: string) => {
       const slot = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
       if (slot) slot.textContent = messages[field] ?? 'Check this.';
+      fieldsNamed(field).forEach((input) => input.setAttribute('aria-invalid', 'true'));
+    };
+    const clear = (field: string) => {
+      const slot = form.querySelector<HTMLElement>(`[data-error-for="${field}"]`);
+      if (slot) slot.textContent = '';
+      fieldsNamed(field).forEach((input) => input.removeAttribute('aria-invalid'));
     };
 
     // A field's message goes as soon as it is answered.
     form.addEventListener('change', (event) => {
       const name = (event.target as HTMLInputElement | null)?.name;
-      const slot = name ? form.querySelector<HTMLElement>(`[data-error-for="${name}"]`) : null;
-      if (slot) slot.textContent = '';
+      if (name) clear(name);
     });
 
     // Turnstile loads only when the form comes near the screen, so it never slows the first view.
@@ -79,30 +90,43 @@ const VENUES = Object.entries(partner.venues);
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((slot) => { slot.textContent = ''; });
+      form.querySelectorAll<HTMLElement>('[data-error-for]').forEach((slot) => clear(slot.dataset.errorFor ?? ''));
       fallback.hidden = true;
       if (!form.querySelector('input[name="offers"]:checked')) {
         show('offers');
-        form.querySelector<HTMLInputElement>('input[name="offers"]')?.focus();
+        fieldsNamed('offers')[0]?.focus();
+        return;
+      }
+      // No token yet: Turnstile is still working. Posting now would only fail the check.
+      if ((new FormData(form).get('cf-turnstile-response') ?? '') === '') {
+        status.textContent = say.wait;
         return;
       }
       button.disabled = true;
       status.textContent = say.sending;
       try {
         const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { accept: 'application/json' } });
-        const reply = (await response.json()) as Reply;
+        // Anything but our JSON (a proxy's error page, a 413) is an unavailable service, not a dropped connection.
+        const isJson = (response.headers.get('content-type') ?? '').includes('application/json');
+        const reply: Reply = isJson ? ((await response.json()) as Reply) : { ok: false, reason: 'unavailable' };
         if (reply.ok) { window.location.assign('/thanks/'); return; }
         if (reply.errors && reply.errors.length > 0) {
           reply.errors.forEach(show);
           status.textContent = say.fields;
-        } else if (reply.reason === 'check') {
-          status.textContent = say.check;
-          (window as unknown as { turnstile?: { reset(): void } }).turnstile?.reset();
-        } else {
+          fieldsNamed(reply.errors[0]!)[0]?.focus();
+          return;
+        }
+        // Every other refusal used up the token: get a fresh one for the next try.
+        turnstile()?.reset();
+        failedChecks += reply.reason === 'check' ? 1 : 0;
+        if (reply.reason === 'check' && failedChecks < 2) status.textContent = say.check;
+        else if (reply.reason === 'busy') status.textContent = say.busy;
+        else {
           status.textContent = say.failed;
           fallback.hidden = false;
         }
       } catch {
+        turnstile()?.reset();
         status.textContent = say.offline;
         fallback.hidden = false;
       } finally {

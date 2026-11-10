@@ -15,10 +15,11 @@ const { title, description, og = 'home' } = Astro.props;
 const fullTitle = title === site.name ? site.name : `${title} · ${site.name}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogImage = new URL(`/og/${og}.png`, site.url).href;
+// "<" escaped so no value can ever close the script element early.
 const organisation = JSON.stringify({
   '@context': 'https://schema.org', '@type': 'Organization', name: site.name, url: site.url,
   ...(site.entity ? { legalName: site.entity } : {}),
-});
+}).replace(/</g, '\\u003c');
 ---
 <!doctype html>
 <html lang="en-IN">

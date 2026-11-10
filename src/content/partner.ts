@@ -20,8 +20,10 @@ export const partner = {
   },
   status: {
     sending: 'Sending…',
+    wait: 'One moment, the spam check is still running.',
     fields: 'Check the marked fields.',
     check: 'Check failed. Try again.',
+    busy: 'Too many tries. Wait a minute.',
     failed: 'Not sent. Message us on WhatsApp.',
     offline: 'Not sent. Check your connection.',
   },

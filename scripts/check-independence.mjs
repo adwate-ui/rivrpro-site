@@ -2,7 +2,8 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-const BANNED = [/rivrpoker\.com/i, /rivr-[a-z]+-staging\.pages\.dev/i, /\.supabase\.co/i];
+// The club's own site, any Cloudflare Pages app (where the platform's apps live) and any Supabase project.
+const BANNED = [/rivrpoker\.com/i, /\.pages\.dev/i, /\.supabase\.co/i];
 const dir = process.argv[2] ?? 'dist';
 
 function* files(path) {

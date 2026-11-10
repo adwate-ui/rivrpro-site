@@ -2,8 +2,11 @@ node_modules/
 dist/
 .astro/
 .wrangler/
-.env
-.dev.vars
+# Every env and dev-vars file stays local (the repo is public); only the examples are committed.
+.env*
+!.env.example
+.dev.vars*
+!.dev.vars.example
 worker/worker-configuration.d.ts
 test-results/
 playwright-report/

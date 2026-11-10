@@ -25,6 +25,25 @@ function base64(text: string): string {
   return btoa(binary);
 }
 
+/**
+ * The subject as RFC 2047 encoded words of at most 75 characters (39 bytes of UTF-8 each, so a line with "Subject: " stays under 78, split between code points),
+ * folded onto continuation lines.
+ */
+function encodedSubject(subject: string): string {
+  const encoder = new TextEncoder();
+  const words: string[] = [];
+  let current = '';
+  for (const char of subject) {
+    if (encoder.encode(current + char).length > 39) {
+      words.push(current);
+      current = '';
+    }
+    current += char;
+  }
+  if (current !== '') words.push(current);
+  return words.map((word) => `=?UTF-8?B?${base64(word)}?=`).join('\r\n ');
+}
+
 function wrap(value: string, width = 76): string {
   return value.match(new RegExp(`.{1,${width}}`, 'g'))?.join('\r\n') ?? '';
 }
@@ -60,8 +79,9 @@ export function buildEnquiryEmail(enquiry: Enquiry, options: EmailOptions): Outg
     `From: RIVR Pro <${options.from}>`,
     `To: <${options.to}>`,
     `Reply-To: <${enquiry.email}>`,
-    `Subject: =?UTF-8?B?${base64(subject)}?=`,
-    `Date: ${options.now.toUTCString()}`,
+    `Subject: ${encodedSubject(subject)}`,
+    // RFC 5322 §4: "GMT" is obsolete; write the zone as +0000.
+    `Date: ${options.now.toUTCString().replace(/GMT$/, '+0000')}`,
     `Message-ID: <${options.id}@rivrpro.com>`,
     'MIME-Version: 1.0',
     'Content-Type: text/plain; charset=UTF-8',

@@ -25,10 +25,10 @@ describe('parseEnquiry', () => {
     });
   });
 
-  it('accepts a 0-prefixed or bare 10-digit mobile', () => {
-    for (const phone of ['09876543210', '9876543210']) {
+  it('accepts a mobile with +91, 91, 0 or nothing in front', () => {
+    for (const phone of ['+919876543210', '919876543210', '91 98765 43210', '09876543210', '9876543210']) {
       const result = parseEnquiry(form({ ...GOOD, phone }));
-      expect(result.ok && result.enquiry.phone).toBe('+919876543210');
+      expect(result.ok && result.enquiry.phone, phone).toBe('+919876543210');
     }
   });
 
@@ -47,9 +47,27 @@ describe('parseEnquiry', () => {
     expect(result).toEqual({ ok: false, errors: ['name', 'email'] });
   });
 
-  it('allows an empty message and keeps its line breaks', () => {
+  it('refuses invisible control and direction characters in one-line fields', () => {
+    for (const bad of ['Asha\u0085Verma', 'Asha\u202eVerma', 'Asha\u2028Verma', 'Asha\u200bVerma']) {
+      expect(parseEnquiry(form({ ...GOOD, name: bad, city: bad })), JSON.stringify(bad)).toEqual({ ok: false, errors: ['name', 'city'] });
+    }
+  });
+
+  it('takes only a plain ASCII email with one address', () => {
+    for (const email of ['a@evil.com>,<b@x.co', 'x@y.z>\u0085Content-Type:text/html', 'ü@example.com', '\u202emoc.live@x.com', 'a b@x.co']) {
+      expect(parseEnquiry(form({ ...GOOD, email })), JSON.stringify(email)).toEqual({ ok: false, errors: ['email'] });
+    }
+    expect(parseEnquiry(form({ ...GOOD, email: "o'brien+club@mail.example.co.in" })).ok).toBe(true);
+  });
+
+  it('accepts digits in one-line fields', () => {
+    const result = parseEnquiry(form({ ...GOOD, name: 'Asha Verma 2nd', city: 'Sector 29, Gurugram 122002', email: 'asha2089@example.com' }));
+    expect(result.ok).toBe(true);
+  });
+
+  it('allows an empty message, keeps its line breaks and strips pasted control characters', () => {
     expect(parseEnquiry(form({ ...GOOD, message: '' })).ok).toBe(true);
-    const result = parseEnquiry(form({ ...GOOD, message: 'Line one\r\nLine two' }));
-    expect(result.ok && result.enquiry.message).toBe('Line one\nLine two');
+    const result = parseEnquiry(form({ ...GOOD, message: 'Line one\r\nLine\ttwo\u000b\u0007' }));
+    expect(result.ok && result.enquiry.message).toBe('Line one\nLine\ttwo');
   });
 });

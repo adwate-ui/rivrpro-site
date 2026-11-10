@@ -10,17 +10,20 @@ permissions:
   contents: read
 
 # Actions are pinned to commits (the versions rivr-platform uses), not tags.
+# The Cloudflare token lives only in the `production` environment, which only `main` may use: pull-request code never
+# runs with it. There are no per-PR previews for that reason; the workers.dev address is the preview until launch.
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with: { persist-credentials: false }
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version-file: .node-version, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - name: Local config (Turnstile test keys and the fake mailer only)
+      - name: Local config (Turnstile test keys only)
         run: cp .env.example .env && cp .dev.vars.example .dev.vars
       - run: pnpm cf-types && pnpm check
       - run: pnpm test
@@ -38,36 +41,23 @@ jobs:
             .lighthouseci
           retention-days: 14
 
-  preview:
-    if: github.event_name == 'pull_request'
-    needs: check
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with: { node-version-file: .node-version, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-        env: { PUBLIC_TURNSTILE_SITE_KEY: '${{ vars.TURNSTILE_SITE_KEY }}' }
-      - run: pnpm independence
-      - run: pnpm wrangler versions upload --message "PR ${{ github.event.number }}"
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment: production
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with: { persist-credentials: false }
       - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with: { node-version-file: .node-version, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - name: The real Turnstile site key is set (never a test key)
+        env: { KEY: '${{ vars.TURNSTILE_SITE_KEY }}' }
+        run: |
+          [[ -n "$KEY" && ! "$KEY" =~ ^[123]x0+ ]] || { echo "::error::Set the TURNSTILE_SITE_KEY variable to the real site key."; exit 1; }
       - run: pnpm build
         env: { PUBLIC_TURNSTILE_SITE_KEY: '${{ vars.TURNSTILE_SITE_KEY }}' }
       - run: pnpm independence
