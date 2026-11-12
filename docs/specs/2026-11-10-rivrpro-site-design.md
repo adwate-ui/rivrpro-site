@@ -53,7 +53,8 @@ Cloudflare Worker "rivrpro-site"  (rivrpro.com, www → apex)
   - `ENQUIRY_TO`: `info@rivrpro.com` (owner, 10 Nov). The code sends only to it.
 - **Secret `RESEND_API_KEY`:** a sending-only Resend key restricted to rivrpro.com.
   - The Turnstile site key and the WhatsApp number.
-- **Mail:** rivrpro.com's mail is on Google Workspace (its MX records point to Google). Cloudflare Email Routing must never be turned on for it, because that replaces the MX records. Resend's domain records sit under `send.` and a DKIM name, and leave the apex MX alone. Sending uses Cloudflare Email Sending, which adds records only under `cf-bounce` and `_dmarc`.
+- **Mail:** rivrpro.com's mail is on Google Workspace (its MX records point to Google). Cloudflare Email Routing must never be turned on for it, because that replaces the MX records. Resend's domain records sit under `send.` and a DKIM name, and leave the apex MX alone.
+- **DMARC is required for delivery.** rivrpro.com publishes `_dmarc` TXT `v=DMARC1; p=none;` (added 12 Nov). Before it existed, Resend reported both test emails "Delivered" (Google accepted them), yet they never appeared in the info@ mailbox, not even in Spam or Trash. They arrived once the record was published. Do not remove it. Keep `p=none` until every sender (Google Workspace and Resend) is confirmed to pass; only then consider `quarantine`. Sending uses Cloudflare Email Sending, which adds records only under `cf-bounce` and `_dmarc`.
 - **Before launch** the Worker serves on its workers.dev address, with `X-Robots-Tag: noindex` on every response. **At launch** the owner adds rivrpro.com as a Custom Domain, a Cloudflare Redirect Rule sends www.rivrpro.com to the apex, and noindex comes off.
 
 ## Pages
@@ -175,7 +176,7 @@ Every failure is logged in the Worker with no personal data. After any refusal, 
 ## Launch checklist
 
 1. The owner approves the copy and supplies the photos.
-2. rivrpro.com is verified in Resend, `RESEND_API_KEY` is set on the Worker, and a real test enquiry reaches info@rivrpro.com.
+2. Done 12 Nov: rivrpro.com verified in Resend (Tokyo region), the DMARC record published, `RESEND_API_KEY` set on the Worker, and a real enquiry from the live form reached info@rivrpro.com.
 3. A real test enquiry reaches the inbox, the WhatsApp button opens the right chat, and Turnstile works on the real hostname.
 4. The legal entity name and CIN/GST (if shown) are in the footer and privacy notice.
 5. The owner adds rivrpro.com as a Custom Domain and a Redirect Rule for www; the noindex header is removed; the sitemap is submitted to Google Search Console.
