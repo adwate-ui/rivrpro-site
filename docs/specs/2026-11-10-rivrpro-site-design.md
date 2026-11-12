@@ -22,7 +22,7 @@ Not offered on the site: investing in RIVR-owned clubs, software sold without th
 | The club | RIVR Gurugram is named and shown as the flagship (photos, facts, technology). **No hyperlinks** to rivrpoker.com or any RIVR app |
 | Independence | Separate repo (this one), separate Cloudflare Worker, separate deploys. No code, package or backend is shared with rivr-platform. Brand values are copied in once |
 | Proof | Real club photos (owner supplies) and real platform screenshots (captured from staging sample data). No team names or bios, no club figures |
-| Enquiries | A form emailed through Cloudflare, with Turnstile against spam, plus a WhatsApp button. Nothing is stored except the email in the owner's inbox |
+| Enquiries | A form emailed through Resend (owner, 12 Nov: no paid Cloudflare plan), with Turnstile against spam, plus a WhatsApp button. Nothing is stored except the email in the inbox |
 | Look | RIVR's green, cream and gold with the spade wordmark, in the references' editorial layout |
 | Timing | No fixed date. Launch once the photos and copy are approved |
 | Build | Astro static pages plus one Cloudflare Worker (recommended option, approved) |
@@ -40,19 +40,20 @@ GitHub (adwate-ui/rivrpro-site)
 Cloudflare Worker "rivrpro-site"  (rivrpro.com, www → apex)
   ├─ static assets: dist/  (every page is prebuilt HTML)
   └─ worker/index.ts
-       POST /api/enquiry → validate → Turnstile siteverify → send_email → 303 to /thanks
+       POST /api/enquiry → validate → Turnstile siteverify → Resend API → 303 to /thanks
        everything else   → ASSETS
 ```
 
 - **Astro, `output: 'static'`.** Every page is plain HTML at build time. The only client JavaScript is the form's script, under 10 KB. Turnstile loads only when the form comes near the screen, so it never slows the first view.
-- **One hand-written Worker** (`worker/index.ts`) with an `ASSETS` binding and a `send_email` binding. It has no framework adapter, so Astro upgrades cannot break the API route.
+- **One hand-written Worker** (`worker/index.ts`) with an `ASSETS` binding, a rate-limit binding, and a plain `fetch` to Resend's API. It has no framework adapter, so Astro upgrades cannot break the API route.
 - **No database, KV or storage.** An enquiry exists only as the email it becomes.
 - **Secrets live in the Worker, never in the repo** (the repo is public): `TURNSTILE_SECRET`.
 - **Public config values:**
   - `ENQUIRY_FROM`: `enquiries@rivrpro.com`.
-  - `ENQUIRY_TO`: `info@rivrpro.com` (owner, 10 Nov). The `send_email` binding is locked to that one address.
+  - `ENQUIRY_TO`: `info@rivrpro.com` (owner, 10 Nov). The code sends only to it.
+- **Secret `RESEND_API_KEY`:** a sending-only Resend key restricted to rivrpro.com.
   - The Turnstile site key and the WhatsApp number.
-- **Mail:** rivrpro.com's mail is on Google Workspace (its MX records point to Google). Cloudflare Email Routing must never be turned on for it, because that replaces the MX records. Sending uses Cloudflare Email Sending, which adds records only under `cf-bounce` and `_dmarc`.
+- **Mail:** rivrpro.com's mail is on Google Workspace (its MX records point to Google). Cloudflare Email Routing must never be turned on for it, because that replaces the MX records. Resend's domain records sit under `send.` and a DKIM name, and leave the apex MX alone. Sending uses Cloudflare Email Sending, which adds records only under `cf-bounce` and `_dmarc`.
 - **Before launch** the Worker serves on its workers.dev address, with `X-Robots-Tag: noindex` on every response. **At launch** the owner adds rivrpro.com as a Custom Domain, a Cloudflare Redirect Rule sends www.rivrpro.com to the apex, and noindex comes off.
 
 ## Pages
@@ -161,7 +162,7 @@ Every failure is logged in the Worker with no personal data. After any refusal, 
 ## Testing
 
 - **Unit tests** (Vitest) for the Worker: field validation, the honeypot, Turnstile refused and unavailable, the rate limit, size limits, an email failure, the success redirect, and the fetch JSON responses. Turnstile, the limiter and the email sender are passed in, so tests use fakes.
-- **End-to-end** (Playwright, against `wrangler dev` with the Turnstile test keys; email goes through wrangler's local `send_email` simulator, which checks the message as Cloudflare does):
+- **End-to-end** (Playwright, against `wrangler dev` with the Turnstile test keys and no Resend key, so the email is logged, not sent; that dry run works only on localhost, and `worker/resend.test.ts` covers the Resend request):
   - every page renders with no console errors;
   - navigation works;
   - the form succeeds, the server returns field errors, and a post without a Turnstile token lands on `/not-sent`;
@@ -174,7 +175,7 @@ Every failure is logged in the Worker with no personal data. After any refusal, 
 ## Launch checklist
 
 1. The owner approves the copy and supplies the photos.
-2. rivrpro.com is onboarded for Cloudflare Email Sending (not Email Routing), and a real test enquiry reaches info@rivrpro.com.
+2. rivrpro.com is verified in Resend, `RESEND_API_KEY` is set on the Worker, and a real test enquiry reaches info@rivrpro.com.
 3. A real test enquiry reaches the inbox, the WhatsApp button opens the right chat, and Turnstile works on the real hostname.
 4. The legal entity name and CIN/GST (if shown) are in the footer and privacy notice.
 5. The owner adds rivrpro.com as a Custom Domain and a Redirect Rule for www; the noindex header is removed; the sitemap is submitted to Google Search Console.

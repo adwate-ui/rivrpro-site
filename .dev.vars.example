@@ -1,1 +1,3 @@
 TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+# Empty locally: the Worker logs the email instead of sending it (localhost only).
+RESEND_API_KEY=

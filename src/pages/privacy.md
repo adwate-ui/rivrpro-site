@@ -11,7 +11,7 @@ Only what you enter in the enquiry form.
 
 ## What we do with it
 
-It reaches us as an email. We use it to reply to you, and for nothing else. We don't store it elsewhere, add you to a mailing list, or share it.
+It reaches us as an email, sent through our email provider, Resend. We use it to reply to you, and for nothing else. We don't store it elsewhere, add you to a mailing list, or share it.
 
 ## Spam checks and analytics
 

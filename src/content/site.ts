@@ -4,8 +4,8 @@ export const site = {
   url: 'https://rivrpro.com',
   /** WhatsApp number, digits with country code (e.g. 919876543210). Empty hides the WhatsApp buttons. */
   whatsapp: '',
-  /** Legal entity for the footer and privacy notice. */
-  entity: '',
+  /** Legal entity for the footer and privacy notice (owner, 12 Nov: a proprietorship). */
+  entity: 'Essential Products and Services',
   /** Shown after the entity, e.g. "CIN … · GSTIN …"; empty shows nothing. */
   entityIds: '',
   turnstileSiteKey: import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string,
