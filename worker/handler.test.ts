@@ -49,7 +49,7 @@ describe('handleEnquiry', () => {
     expect(deps.verifyTurnstile).toHaveBeenCalledWith('token', '203.0.113.9');
     expect(deps.allowSend).toHaveBeenCalledWith('203.0.113.9');
     expect(deps.sendEmail).toHaveBeenCalledOnce();
-    expect(deps.sendEmail.mock.calls[0]![0]).toMatchObject({ from: 'enquiries@rivrpro.com', to: 'owner@example.com' });
+    expect(deps.sendEmail.mock.calls[0]![0]).toMatchObject({ from: 'RIVR Pro <enquiries@rivrpro.com>', to: 'owner@example.com', replyTo: 'asha@example.com' });
   });
 
   it('answers JSON to a fetch', async () => {

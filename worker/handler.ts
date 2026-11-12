@@ -1,5 +1,5 @@
 import { parseEnquiry } from './enquiry';
-import { buildEnquiryEmail, type OutgoingEmail } from './mime';
+import { buildEnquiryEmail, type OutgoingEmail } from './email';
 import type { TurnstileVerdict } from './turnstile';
 
 /** Everything the handler reaches outside itself, passed in so tests use fakes. */

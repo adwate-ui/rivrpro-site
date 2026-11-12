@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Runs against the real Worker (wrangler dev) with Turnstile's test keys from .dev.vars; emails go to wrangler's local
-// send_email simulator. A fresh state folder each run, so the per-address send limit never carries over from earlier runs.
+// Runs against the real Worker (wrangler dev) with Turnstile's test keys from .dev.vars and no Resend key, so the email
+// is logged, not sent (worker/resend.test.ts covers the Resend call). A fresh state folder each run, so the per-address
+// send limit never carries over from earlier runs.
 export default defineConfig({
   testDir: 'e2e',
   fullyParallel: true,
