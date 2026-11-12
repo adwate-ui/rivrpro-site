@@ -6,4 +6,5 @@ RIVR's partner and investor website. Independent of the RIVR platform: no shared
 - Setup: `pnpm i && cp .env.example .env && cp .dev.vars.example .dev.vars && pnpm cf-types`
 - `pnpm dev` (pages only) · `pnpm preview` (pages + Worker on :8787) · `pnpm test` · `pnpm e2e` · `pnpm lhci`
 - Deploys: CI deploys `main` to Cloudflare; pull requests get a preview URL.
+- Email: enquiries go to info@rivrpro.com through Resend (`worker/resend.ts`, Worker secret `RESEND_API_KEY`). rivrpro.com's own mail is Google Workspace: never turn on Cloudflare Email Routing, and keep the `_dmarc` record, without which Google hides the site's emails.
 - Words live in `src/content/`. Photos go in `src/assets/photos/` by name (see `src/content/media.ts`).
